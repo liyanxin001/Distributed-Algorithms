@@ -4,13 +4,13 @@ import java.util.Map;
 
 import org.greatfree.util.Tools;
 
-import com.greatfree.cluster.tpc.data.BankAccount;
+import com.greatfree.cluster.tpc.data.Account;
 
 public class DatabaseParticipant {
     private final String Key;
     private ParticipantState state;
     private boolean simulateFailure;
-    private Map<String, BankAccount> accounts;
+    private Map<String, Account> accounts;
     
     enum ParticipantState {
         ACTIVE, PREPARED, COMMITTED, ABORTED, FAILED
@@ -74,10 +74,10 @@ public class DatabaseParticipant {
     public ParticipantState getState() {
         return state;
     }
-	public Map<String, BankAccount> getAccounts() {
+	public Map<String, Account> getAccounts() {
 		return accounts;
 	}
-	public void setAccounts(Map<String, BankAccount> accounts) {
+	public void setAccounts(Map<String, Account> accounts) {
 		this.accounts = accounts;
 	}
 }
