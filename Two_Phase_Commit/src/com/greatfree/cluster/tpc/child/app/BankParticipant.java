@@ -1,187 +1,361 @@
 package com.greatfree.cluster.tpc.child.app;
 
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-
-
-import com.greatfree.cluster.tpc.data.Account;
-
-
+/**
+ * Represents the possible states of a distributed transaction within a participant.
+ * This follows the standard 2PC state transition:
+ * ACTIVE -> PREPARED -> COMMITTED
+ * ACTIVE -> PREPARED -> ABORTED
+ */
 enum TransactionState {
-    ACTIVE, PREPARED, COMMITTED, ABORTED, IN_DOUBT
+    ACTIVE,      // Transaction just started, no locks yet
+    PREPARED,    // Transaction has voted YES and holds locks
+    COMMITTED,   // Transaction has been successfully applied
+    ABORTED      // Transaction was rolled back
 }
 
+/**
+ * Simple bank account entity.
+ */
+class Account {
+    private final String accountNumber;
+    private double balance;
+    
+    public Account(String accountNumber, double initialBalance) {
+        this.accountNumber = accountNumber;
+        this.balance = initialBalance;
+    }
+    
+    public String getAccountNumber() { return accountNumber; }
+    public double getBalance() { return balance; }
+    
+    public void withdraw(double amount) {
+        if (balance < amount) {
+            throw new InsufficientFundsException(
+                String.format("Insufficient funds: have $%.2f, need $%.2f", balance, amount));
+        }
+        balance -= amount;
+    }
+    
+    public void deposit(double amount) {
+        balance += amount;
+    }
+    
+    @Override
+    public String toString() {
+        return String.format("%s: $%.2f", accountNumber, balance);
+    }
+}
 
+class InsufficientFundsException extends RuntimeException {
+    private static final long serialVersionUID = 2363070223116303575L;
+
+	public InsufficientFundsException(String message) { super(message); }
+}
+
+/**
+ * Represents a lock held on an account by a transaction.
+ * In 2PC, locks are acquired during PREPARE phase and released
+ * during COMMIT or ABORT phase.
+ */
+class AccountLock {
+    final String transactionId;   // Which transaction holds this lock
+    final String accountNumber;   // Which account is locked
+    final long lockAcquiredTime;  // For timeout detection
+    
+    AccountLock(String transactionId, String accountNumber) {
+        this.transactionId = transactionId;
+        this.accountNumber = accountNumber;
+        this.lockAcquiredTime = System.currentTimeMillis();
+    }
+}
+
+/**
+ * Represents a transaction that is pending (in PREPARED state).
+ * The actual account modification has NOT happened yet - 
+ * it will only happen if COMMIT is received.
+ */
+class PendingTransaction {
+    final String accountNumber;   // Account to be modified
+    final double amount;          // Amount to transfer
+    final OperationType operation; // WITHDRAW or DEPOSIT
+    TransactionState state;       // Current state (should be PREPARED)
+    
+    enum OperationType {
+        WITHDRAW, DEPOSIT
+    }
+    
+    PendingTransaction(String accountNumber, double amount, OperationType operation) {
+        this.accountNumber = accountNumber;
+        this.amount = amount;
+        this.operation = operation;
+        this.state = TransactionState.ACTIVE;
+    }
+    
+    boolean isWithdraw() { return operation == OperationType.WITHDRAW; }
+    boolean isDeposit() { return operation == OperationType.DEPOSIT; }
+}
+
+/**
+ * BankParticipant represents a single database node that participates
+ * in distributed transactions using the Two-Phase Commit protocol.
+ * 
+ * CRITICAL BEHAVIOR:
+ * - PREPARE: Validates and locks, but DOES NOT modify account balances
+ * - COMMIT: Actually modifies account balances (finally!)
+ * - ABORT: Releases locks, discards pending work
+ */
 public class BankParticipant {
-    private final String bankId;
-    private final Map<String, Account> accounts;
-    private final Map<String, PendingTransaction> pendingTransactions;
-    private final Map<String, Lock> accountLocks;
     
-    // Inner class to track locks
-    private static class Lock {
-        final String transactionId;
-        Lock(String transactionId, String accountNumber, boolean isExclusive) {
-            this.transactionId = transactionId;
-        }
-    }
+    // Core data structures
+    private final Map<String, Account> accounts;                    // accountNumber -> Account
+    private final Map<String, PendingTransaction> pendingTransactions; // transactionId -> PendingTransaction
+    private final Map<String, AccountLock> accountLocks;            // accountNumber -> AccountLock
     
-    // Inner class for pending transaction state
-    private static class PendingTransaction {
-        final String accountNumber;
-        final double amount;
-        final boolean isDebit; // true for debt, false for credit
-        TransactionState state;
-        
-        PendingTransaction(String transactionId, String accountNumber, 
-                          double amount, boolean isDebit) {
-            this.accountNumber = accountNumber;
-            this.amount = amount;
-            this.isDebit = isDebit;
-            this.state = TransactionState.ACTIVE;
-        }
-    }
+    private final String participantId;  // For identification (e.g., "Database-A")
     
-    public BankParticipant(String bankId) {
-        this.bankId = bankId;
+    public BankParticipant(String participantId) {
+        this.participantId = participantId;
         this.accounts = new ConcurrentHashMap<>();
         this.pendingTransactions = new ConcurrentHashMap<>();
         this.accountLocks = new ConcurrentHashMap<>();
-        initializeAccounts();
     }
     
-    private void initializeAccounts() {
-        // Create some sample accounts
-        accounts.put("1001", new Account("1001", bankId, 5000.0));
-        accounts.put("1002", new Account("1002", bankId, 3000.0));
-        accounts.put("1003", new Account("1003", bankId, 10000.0));
+    // ==================== Account Management ====================
+    
+    public void addAccount(String accountNumber, double initialBalance) {
+        accounts.put(accountNumber, new Account(accountNumber, initialBalance));
     }
     
-    public String getBankId() { return bankId; }
-    
-    // Phase 1: Prepare
-    public boolean prepare(String transactionId, String accountNumber, 
-                          double amount, boolean isDebit) {
-        System.out.printf("[Bank %s] [TX: %s] Prepare request: %s $%.2f from account %s%n",
-            bankId, transactionId, isDebit ? "DEBIT" : "CREDIT", amount, accountNumber);
-        
-        Account account = accounts.get(accountNumber);
-        if (account == null) {
-            System.out.printf("[Bank %s] [TX: %s] Account %s not found. Voting NO%n",
-                bankId, transactionId, accountNumber);
-            return false;
-        }
-        
-        // Check if account is already locked by another transaction
-        Lock existingLock = accountLocks.get(accountNumber);
-        if (existingLock != null && !existingLock.transactionId.equals(transactionId)) {
-            System.out.printf("[Bank %s] [TX: %s] Account %s locked by TX: %s. Voting NO%n",
-                bankId, transactionId, accountNumber, existingLock.transactionId);
-            return false;
-        }
-        
-        // For debit operations, verify sufficient funds
-        if (isDebit && account.getBalance() < amount) {
-            System.out.printf("[Bank %s] [TX: %s] Insufficient funds. Balance: $%.2f, Required: $%.2f. Voting NO%n",
-                bankId, transactionId, account.getBalance(), amount);
-            return false;
-        }
-        
-        // Acquire lock on the account
-        accountLocks.put(accountNumber, new Lock(transactionId, accountNumber, true));
-        
-        // Record pending transaction
-        PendingTransaction pending = new PendingTransaction(
-            transactionId, accountNumber, amount, isDebit);
-        pending.state = TransactionState.PREPARED;
-        pendingTransactions.put(transactionId, pending);
-        
-        System.out.printf("[Bank %s] [TX: %s] Prepared. Locks acquired. Voting YES%n",
-            bankId, transactionId);
-        return true;
-    }
-    
-    // Phase 2: Commit
-    public void commit(String transactionId) {
-        System.out.printf("[Bank %s] [TX: %s] Commit request received%n", bankId, transactionId);
-        
-        PendingTransaction pending = pendingTransactions.get(transactionId);
-        if (pending == null) {
-            System.out.printf("[Bank %s] [TX: %s] No pending transaction found%n", 
-                bankId, transactionId);
-            return;
-        }
-        
-        if (pending.state != TransactionState.PREPARED) {
-            System.out.printf("[Bank %s] [TX: %s] Cannot commit: invalid state %s%n",
-                bankId, transactionId, pending.state);
-            return;
-        }
-        
-        try {
-            Account account = accounts.get(pending.accountNumber);
-            
-            // Apply the actual operation
-            if (pending.isDebit) {
-                account.debit(pending.amount);
-                System.out.printf("[Bank %s] [TX: %s] Debited $%.2f from account %s. New balance: $%.2f%n",
-                    bankId, transactionId, pending.amount, pending.accountNumber, account.getBalance());
-            } else {
-                account.credit(pending.amount);
-                System.out.printf("[Bank %s] [TX: %s] Credited $%.2f to account %s. New balance: $%.2f%n",
-                    bankId, transactionId, pending.amount, pending.accountNumber, account.getBalance());
-            }
-            
-            // Update state
-            pending.state = TransactionState.COMMITTED;
-            
-            // Release lock
-            accountLocks.remove(pending.accountNumber);
-            
-            // Remove from pending after successful commit
-            pendingTransactions.remove(transactionId);
-            
-        } catch (Exception e) {
-            System.out.printf("[Bank %s] [TX: %s] Commit failed: %s%n",
-                bankId, transactionId, e.getMessage());
-            // In real system, this would trigger recovery
-        }
-    }
-    
-    // Phase 2: Abort
-    public void abort(String transactionId) {
-        System.out.printf("[Bank %s] [TX: %s] Abort request received%n", bankId, transactionId);
-        
-        PendingTransaction pending = pendingTransactions.get(transactionId);
-        if (pending == null) {
-            System.out.printf("[Bank %s] [TX: %s] No pending transaction found%n", 
-                bankId, transactionId);
-            return;
-        }
-        
-        // Release lock
-        accountLocks.remove(pending.accountNumber);
-        
-        // Mark as aborted
-        pending.state = TransactionState.ABORTED;
-        pendingTransactions.remove(transactionId);
-        
-        System.out.printf("[Bank %s] [TX: %s] Aborted. Locks released.%n", 
-            bankId, transactionId);
-    }
-    
-    // Query account balance
     public double getBalance(String accountNumber) {
         Account account = accounts.get(accountNumber);
         return account != null ? account.getBalance() : -1;
     }
     
-    // Display all accounts
+    public boolean isAccountLocked(String accountNumber) {
+        return accountLocks.containsKey(accountNumber);
+    }
+    
+    public String getLockingTransaction(String accountNumber) {
+        AccountLock lock = accountLocks.get(accountNumber);
+        return lock != null ? lock.transactionId : null;
+    }
+    
+    // ==================== TWO-PHASE COMMIT METHODS ====================
+    
+    /**
+     * PHASE 1: PREPARE
+     * 
+     * This method votes on whether the transaction can commit.
+     * 
+     * What happens during PREPARE:
+     * 1. Validate account exists
+     * 2. Check if account is already locked by ANOTHER transaction
+     * 3. For withdrawals, verify sufficient funds
+     * 4. If all checks pass: ACQUIRE LOCK and record pending transaction
+     * 5. Return true = VOTE YES, false = VOTE NO
+     * 
+     * IMPORTANT: Account balance is NOT modified during PREPARE.
+     * The actual withdrawal/deposit happens only during COMMIT.
+     * 
+     * @param transactionId Unique ID for this distributed transaction
+     * @param accountNumber Which account to operate on
+     * @param amount How much money
+     * @param isWithdraw true = money leaves account, false = money enters account
+     * @return true = VOTE YES (ready to commit), false = VOTE NO (cannot commit)
+     */
+    public boolean prepare(String transactionId, String accountNumber, 
+                          double amount, boolean isWithdraw) {
+        
+        String operation = isWithdraw ? "WITHDRAW" : "DEPOSIT";
+        log("PREPARE phase: Transaction %s wants to %s $%.2f from/to %s", 
+            transactionId, operation, amount, accountNumber);
+        
+        // ----- VALIDATION STEP 1: Does the account exist? -----
+        Account account = accounts.get(accountNumber);
+        if (account == null) {
+            log("  ❌ REJECTED: Account %s does not exist. Voting NO.", accountNumber);
+            return false;  // VOTE NO
+        }
+        
+        // ----- VALIDATION STEP 2: Is the account locked by another transaction? -----
+        AccountLock existingLock = accountLocks.get(accountNumber);
+        if (existingLock != null && !existingLock.transactionId.equals(transactionId)) {
+            log("  ❌ REJECTED: Account %s is locked by transaction %s. Voting NO.", 
+                accountNumber, existingLock.transactionId);
+            return false;  // VOTE NO
+        }
+        
+        // ----- VALIDATION STEP 3: For withdrawals, check sufficient funds -----
+        if (isWithdraw && account.getBalance() < amount) {
+            log("  ❌ REJECTED: Insufficient funds in %s. Balance: $%.2f, Need: $%.2f. Voting NO.",
+                accountNumber, account.getBalance(), amount);
+            return false;  // VOTE NO
+        }
+        
+        // ----- ALL CHECKS PASSED: Acquire lock and record pending transaction -----
+        
+        // Acquire lock if not already locked by this transaction
+        if (existingLock == null) {
+            accountLocks.put(accountNumber, new AccountLock(transactionId, accountNumber));
+            log("  🔒 Lock acquired on %s", accountNumber);
+        } else {
+            log("  🔒 Account already locked by this transaction (idempotent prepare)");
+        }
+        
+        // Record the pending operation (remember: we haven't done it yet!)
+        PendingTransaction.OperationType op = 
+            isWithdraw ? PendingTransaction.OperationType.WITHDRAW 
+                       : PendingTransaction.OperationType.DEPOSIT;
+        
+        PendingTransaction pending = new PendingTransaction(accountNumber, amount, op);
+        pending.state = TransactionState.PREPARED;
+        pendingTransactions.put(transactionId, pending);
+        
+        log("  ✅ PREPARE successful. VOTE YES. (Account balance unchanged: $%.2f)", 
+            account.getBalance());
+        return true;  // VOTE YES
+    }
+    
+    /**
+     * PHASE 2: COMMIT
+     * 
+     * This method FINALLY applies the changes to the account.
+     * Called by coordinator AFTER all participants voted YES.
+     * 
+     * What happens during COMMIT:
+     * 1. Verify this transaction was prepared
+     * 2. Apply the actual withdrawal or deposit (finally!)
+     * 3. Release the lock
+     * 4. Remove the pending transaction record
+     * 
+     * @param transactionId The transaction to commit
+     */
+    public void commit(String transactionId) {
+        log("COMMIT phase: Transaction %s", transactionId);
+        
+        // ----- STEP 1: Find the pending transaction -----
+        PendingTransaction pending = pendingTransactions.get(transactionId);
+        if (pending == null) {
+            log("  ❌ ERROR: No prepared transaction found for %s. Cannot commit.", transactionId);
+            return;
+        }
+        
+        if (pending.state != TransactionState.PREPARED) {
+            log("  ❌ ERROR: Transaction %s is in state %s, expected PREPARED. Cannot commit.",
+                transactionId, pending.state);
+            return;
+        }
+        
+        // ----- STEP 2: Apply the actual operation (THIS IS WHERE MONEY MOVES) -----
+        Account account = accounts.get(pending.accountNumber);
+        if (account == null) {
+            // This should never happen if prepare passed, but check anyway
+            log("  ❌ CRITICAL ERROR: Account %s disappeared between prepare and commit!", 
+                pending.accountNumber);
+            // In real system, this would trigger recovery procedures
+            pending.state = TransactionState.ABORTED;
+            pendingTransactions.remove(transactionId);
+            accountLocks.remove(pending.accountNumber);
+            return;
+        }
+        
+        double balanceBefore = account.getBalance();
+        
+        if (pending.isWithdraw()) {
+            account.withdraw(pending.amount);
+            log("  💸 Withdrew $%.2f from %s", pending.amount, pending.accountNumber);
+        } else { // DEPOSIT
+            account.deposit(pending.amount);
+            log("  💰 Deposited $%.2f to %s", pending.amount, pending.accountNumber);
+        }
+        
+        double balanceAfter = account.getBalance();
+        log("     Balance changed: $%.2f -> $%.2f", balanceBefore, balanceAfter);
+        
+        // ----- STEP 3: Release the lock -----
+        accountLocks.remove(pending.accountNumber);
+        log("  🔓 Lock released on %s", pending.accountNumber);
+        
+        // ----- STEP 4: Clean up pending transaction record -----
+        pending.state = TransactionState.COMMITTED;
+        pendingTransactions.remove(transactionId);
+        
+        log("  ✅ Transaction %s COMMITTED successfully", transactionId);
+    }
+    
+    /**
+     * PHASE 2: ABORT
+     * 
+     * This method cancels the transaction without applying changes.
+     * Called by coordinator if ANY participant voted NO.
+     * 
+     * What happens during ABORT:
+     * 1. Release any locks held for this transaction
+     * 2. Discard the pending transaction (no changes to account!)
+     * 
+     * @param transactionId The transaction to abort
+     */
+    public void abort(String transactionId) {
+        log("ABORT phase: Transaction %s", transactionId);
+        
+        // ----- STEP 1: Find the pending transaction -----
+        PendingTransaction pending = pendingTransactions.get(transactionId);
+        if (pending == null) {
+            log("  No pending transaction found for %s (already aborted or never prepared)", 
+                transactionId);
+            return;
+        }
+        
+        // ----- STEP 2: Release lock if held -----
+        AccountLock lock = accountLocks.get(pending.accountNumber);
+        if (lock != null && lock.transactionId.equals(transactionId)) {
+            accountLocks.remove(pending.accountNumber);
+            log("  🔓 Lock released on %s", pending.accountNumber);
+        }
+        
+        // ----- STEP 3: Discard pending transaction -----
+        double balance = accounts.get(pending.accountNumber).getBalance();
+        pending.state = TransactionState.ABORTED;
+        pendingTransactions.remove(transactionId);
+        
+        log("  ✅ Transaction %s ABORTED. Account %s balance unchanged: $%.2f", 
+            transactionId, pending.accountNumber, balance);
+    }
+    
+    // ==================== Utility Methods ====================
+    
     public void displayAccounts() {
-        System.out.printf("\n=== Bank %s Accounts ===%n", bankId);
-        accounts.values().forEach(account -> 
-            System.out.printf("  %s%n", account));
+        System.out.printf("\n[%s] Current Account Balances:%n", participantId);
+        if (accounts.isEmpty()) {
+            System.out.println("  No accounts");
+        } else {
+            accounts.values().forEach(acc -> {
+                String lockStatus = accountLocks.containsKey(acc.getAccountNumber()) 
+                    ? " (LOCKED by " + accountLocks.get(acc.getAccountNumber()).transactionId + ")" 
+                    : "";
+                System.out.printf("  %s%s%n", acc, lockStatus);
+            });
+        }
+    }
+    
+    private void log(String format, Object... args) {
+        System.out.printf("[%s] " + format + "%n", participantId, args);
+    }
+    
+    /**
+     * For debugging: shows current locks held
+     */
+    public void displayLocks() {
+        if (accountLocks.isEmpty()) {
+            System.out.printf("[%s] No locks held%n", participantId);
+        } else {
+            System.out.printf("[%s] Current locks:%n", participantId);
+            accountLocks.values().forEach(lock -> 
+                System.out.printf("  %s locked by %s%n", 
+                    lock.accountNumber, lock.transactionId));
+        }
     }
 }
-

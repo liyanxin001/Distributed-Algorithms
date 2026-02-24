@@ -3,64 +3,93 @@ package com.greatfree.cluster.tpc.child.app;
 
 
 
-public class TransferCoordinator {
+/**
+ * Coordinator orchestrates the Two-Phase Commit protocol.
+ * It clearly shows the two phases and the decision logic.
+ */
+class TransferCoordinator {
     private final String transactionId;
     private final BankParticipant sourceBank;
     private final BankParticipant destBank;
-    private final String sourceAccount;
-    private final String destAccount;
+    private final String fromAccount;
+    private final String toAccount;
     private final double amount;
     
     public TransferCoordinator(String transactionId, 
-                              BankParticipant sourceBank, String sourceAccount,
-                              BankParticipant destBank, String destAccount,
+                              BankParticipant sourceBank, String fromAccount,
+                              BankParticipant destBank, String toAccount,
                               double amount) {
         this.transactionId = transactionId;
         this.sourceBank = sourceBank;
         this.destBank = destBank;
-        this.sourceAccount = sourceAccount;
-        this.destAccount = destAccount;
+        this.fromAccount = fromAccount;
+        this.toAccount = toAccount;
         this.amount = amount;
     }
     
+    /**
+     * Executes the Two-Phase Commit protocol:
+     * 
+     * PHASE 1: Ask both banks to PREPARE
+     * - If BOTH vote YES -> proceed to PHASE 2 COMMIT
+     * - If ANY votes NO  -> proceed to PHASE 2 ABORT
+     * 
+     * PHASE 2: Tell both banks the decision
+     * - COMMIT: Both banks permanently apply the changes
+     * - ABORT: Both banks release locks, no changes applied
+     */
     public boolean executeTransfer() {
         System.out.println("\n" + "=".repeat(80));
-        System.out.printf("TRANSACTION %s: Transfer $%.2f from Bank %s Account %s to Bank %s Account %s%n",
-            transactionId, amount, sourceBank.getBankId(), sourceAccount, 
-            destBank.getBankId(), destAccount);
+        System.out.println("COORDINATOR: Starting transaction " + transactionId);
+        System.out.printf("Transfer $%.2f from %s (Bank A) to %s (Bank B)%n", 
+            amount, fromAccount, toAccount);
         System.out.println("=".repeat(80));
         
-        // Show initial state
-        System.out.println("\nInitial Account States:");
+        // Show balances before transaction
+        System.out.println("\nBALANCES BEFORE TRANSACTION:");
         sourceBank.displayAccounts();
         destBank.displayAccounts();
         
-        // Phase 1: Prepare
-        System.out.println("\n--- PHASE 1: PREPARE ---");
-        boolean sourcePrepared = sourceBank.prepare(transactionId, sourceAccount, amount, true);
-        boolean destPrepared = destBank.prepare(transactionId, destAccount, amount, false);
+        // ========== PHASE 1: PREPARE ==========
+        System.out.println("\n" + "-".repeat(40));
+        System.out.println("PHASE 1: PREPARE");
+        System.out.println("-".repeat(40));
         
-        // Phase 2: Decision
-        System.out.println("\n--- PHASE 2: DECISION ---");
-        if (sourcePrepared && destPrepared) {
-            System.out.println("✓ All banks prepared successfully. Decision: COMMIT");
+        System.out.println("Coordinator asks: Can you prepare?");
+        boolean sourceVote = sourceBank.prepare(transactionId, fromAccount, amount, true);
+        boolean destVote = destBank.prepare(transactionId, toAccount, amount, false);
+        
+        System.out.println("\nVOTE RESULTS:");
+        System.out.println("  Source Bank (withdraw from " + fromAccount + "): " + 
+            (sourceVote ? "YES" : "NO"));
+        System.out.println("  Dest Bank (deposit to " + toAccount + "): " + 
+            (destVote ? "YES" : "NO"));
+        
+        // ========== PHASE 2: DECISION ==========
+        System.out.println("\n" + "-".repeat(40));
+        System.out.println("PHASE 2: DECISION");
+        System.out.println("-".repeat(40));
+        
+        boolean allVotedYes = sourceVote && destVote;
+        
+        if (allVotedYes) {
+            System.out.println("✓ ALL VOTES YES. Coordinator decides: COMMIT");
             sourceBank.commit(transactionId);
             destBank.commit(transactionId);
             System.out.println("\n✓ TRANSACTION COMMITTED SUCCESSFULLY");
-            return true;
         } else {
-            System.out.println("✗ Prepare failed. Decision: ABORT");
-            if (sourcePrepared) sourceBank.abort(transactionId);
-            if (destPrepared) destBank.abort(transactionId);
-            System.out.println("\n✗ TRANSACTION ABORTED");
-            return false;
+            System.out.println("✗ SOME VOTES NO. Coordinator decides: ABORT");
+            if (sourceVote) sourceBank.abort(transactionId);
+            if (destVote) destBank.abort(transactionId);
+            System.out.println("\n✗ TRANSACTION ABORTED - No money moved");
         }
-    }
-    
-    public void showFinalState() {
-        System.out.println("\nFinal Account States:");
+        
+        // Show balances after transaction
+        System.out.println("\nBALANCES AFTER TRANSACTION:");
         sourceBank.displayAccounts();
         destBank.displayAccounts();
         System.out.println("=".repeat(80) + "\n");
+        
+        return allVotedYes;
     }
 }
