@@ -7,7 +7,7 @@ import org.greatfree.exceptions.RemoteReadException;
 import org.greatfree.util.IPAddress;
 
 
-import com.greatfree.cluster.tpc.child.app.DatabaseParticipant;
+
 
 import edu.greatfree.cluster.ClusterSpec;
 import edu.greatfree.cluster.child.Child;
@@ -31,7 +31,6 @@ public final class TPCChild {
 	 
 	   
 	   private Child child;
-	   private DatabaseParticipant participant;
 	 
 	 
 	   
@@ -82,15 +81,7 @@ public final class TPCChild {
 
 
 
-	public DatabaseParticipant getParticipant() {
-		return participant;
-	}
 
-
-
-	public void setParticipant(DatabaseParticipant participant) {
-		this.participant = participant;
-	}	
 	
 
 }
