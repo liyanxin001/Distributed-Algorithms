@@ -6,7 +6,6 @@ import java.util.logging.Logger;
 import org.greatfree.exceptions.RemoteReadException;
 import org.greatfree.util.TerminateSignal;
 
-import com.greatfree.cluster.tpc.child.app.TransactionCoordinator;
 
 import edu.greatfree.cluster.ClusterSpec;
 import edu.greatfree.cluster.root.Root;
@@ -22,7 +21,7 @@ import edu.greatfree.exceptions.TaskAlreadyExistedException;
 /*    */ 
 /*    */   
 /*    */   private Root root;
-           private TransactionCoordinator transactionCoordinator;
+
 /*    */ 
 /*    */ 
 /*    */   
@@ -58,9 +57,4 @@ import edu.greatfree.exceptions.TaskAlreadyExistedException;
 /* 57 */     log.info("Root's address is " + String.valueOf(this.root.getAddress()));
 /*    */   }
 /*    */
-public TransactionCoordinator getTransactionCoordinator() {
-	return transactionCoordinator;
 }
-public void setTransactionCoordinator(TransactionCoordinator transactionCoordinator) {
-	this.transactionCoordinator = transactionCoordinator;
-} }
