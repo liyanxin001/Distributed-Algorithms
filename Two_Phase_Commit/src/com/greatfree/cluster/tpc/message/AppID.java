@@ -2,8 +2,7 @@ package com.greatfree.cluster.tpc.message;
 
 public class AppID {
 	
-	public final static int GET_PARTICIPANTS_REQUEST = 80001;
-	public final static int GET_PARTICIPANTS_RESPONSE = 80002;
+
 	public final static int COMMIT_NOTIFICATION = 80003;
 	public final static int PREPARE_REQUEST = 80004;
 	public final static int PREPARE_RESPONSE = 80005;

@@ -75,7 +75,7 @@ class PendingTransaction {
  * - COMMIT: Actually modifies account balances (finally!)
  * - ABORT: Releases locks, discards pending work
  */
-public class BankParticipant {
+public class Participant {
     
     // Core data structures
     private final Map<String, Account> accounts;                    // accountNumber -> Account
@@ -84,7 +84,7 @@ public class BankParticipant {
     
     private final String participantId;  // For identification (e.g., "Database-A")
     
-    public BankParticipant(String participantId) {
+    public Participant(String participantId) {
         this.participantId = participantId;
         this.accounts = new ConcurrentHashMap<>();
         this.pendingTransactions = new ConcurrentHashMap<>();

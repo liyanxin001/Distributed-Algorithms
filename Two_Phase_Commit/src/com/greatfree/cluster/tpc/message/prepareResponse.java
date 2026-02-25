@@ -1,5 +1,5 @@
 package com.greatfree.cluster.tpc.message;
 
-public class GetParticipantsResponse {
+public class prepareResponse {
 
 }

@@ -7,17 +7,17 @@ package com.greatfree.cluster.tpc.child.app;
  * Coordinator orchestrates the Two-Phase Commit protocol.
  * It clearly shows the two phases and the decision logic.
  */
-class TransferCoordinator {
+class Coordinator {
     private final String transactionId;
-    private final BankParticipant sourceBank;
-    private final BankParticipant destBank;
+    private final Participant sourceBank;
+    private final Participant destBank;
     private final String fromAccount;
     private final String toAccount;
     private final double amount;
     
-    public TransferCoordinator(String transactionId, 
-                              BankParticipant sourceBank, String fromAccount,
-                              BankParticipant destBank, String toAccount,
+    public Coordinator(String transactionId, 
+                              Participant sourceBank, String fromAccount,
+                              Participant destBank, String toAccount,
                               double amount) {
         this.transactionId = transactionId;
         this.sourceBank = sourceBank;
