@@ -10,36 +10,25 @@ public class prepareRequest extends IntercastRequest{
 	
 
 	private static final long serialVersionUID = -4237038170415870101L;
-	private String coordinator;
-	private List<String> participants;
+
+	private String transactionId;
 	
-	
-	public prepareRequest(String coordinator, List<String> participants) 
+	public prepareRequest(String transactionId, String coordinator, List<String> participants) 
 	{
 		super(RequestType.INTER_BROADCAST_REQUEST, coordinator, participants, AppID.PREPARE_REQUEST);
-		this.setCoordinator(coordinator);
-		this.setParticipants(participants);
+        this.setTransactionId(transactionId);
+	}
+
+	public String getTransactionId() {
+		return transactionId;
+	}
+
+	public void setTransactionId(String transactionId) {
+		this.transactionId = transactionId;
 	}
 
 
-	public String getCoordinator() {
-		return coordinator;
-	}
 
-
-	public void setCoordinator(String coordinator) {
-		this.coordinator = coordinator;
-	}
-
-
-	public List<String> getParticipants() {
-		return participants;
-	}
-
-
-	public void setParticipants(List<String> participants) {
-		this.participants = participants;
-	}
 	
 
 
