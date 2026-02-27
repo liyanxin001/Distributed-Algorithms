@@ -1,21 +1,28 @@
 package com.greatfree.cluster.tpc.child.app;
 
 
-enum ParticipantState {
-    ACTIVE, PREPARED, COMMITTED, ABORTED, FAILED
-}
+
 
 // Class representing a single node (database) in the distributed system
 public class Participant {
-    private final String name;
+    private String name;
     private ParticipantState state;
     private boolean simulateFailure;
+    
+    
 
-    public Participant(String name, boolean simulateFailure) {
-        this.name = name;
-        this.state = ParticipantState.ACTIVE;
-        this.simulateFailure = simulateFailure;
-    }
+    private static Participant instance = new Participant();
+
+	public static Participant PA() {
+		   if (instance == null) {
+		       
+		     instance = new Participant();
+		     return instance;
+		   } 
+		 
+		     
+	  return instance;
+	}
 
     // Phase 1: The Prepare call
     public boolean prepare(String transactionId) {

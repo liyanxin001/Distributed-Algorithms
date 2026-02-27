@@ -9,6 +9,8 @@ public class AppID {
 	public final static int ABORT_NOTIFICATION = 80006;
 	public final static int TRANSFER_REQUEST = 80007;
 	public final static int TRANSFER_RESPONSE = 80008;
+	public final static int ASSIGN_PARTICIPANT_NOTIFICATION = 80009;
+	public final static int ASSIGN_COORDINATOR_NOTIFICATION = 80010;
 	
 
 }

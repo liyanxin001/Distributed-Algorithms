@@ -5,7 +5,7 @@ import java.util.List;
 import edu.greatfree.cluster.message.IntercastRequest;
 import edu.greatfree.cluster.message.RequestType;
 
-public class prepareRequest extends IntercastRequest{
+public class PrepareRequest extends IntercastRequest{
 	
 	
 
@@ -13,7 +13,7 @@ public class prepareRequest extends IntercastRequest{
 
 	private String transactionId;
 	
-	public prepareRequest(String transactionId, String coordinator, List<String> participants) 
+	public PrepareRequest(String coordinator, List<String> participants,String transactionId) 
 	{
 		super(RequestType.INTER_BROADCAST_REQUEST, coordinator, participants, AppID.PREPARE_REQUEST);
         this.setTransactionId(transactionId);
