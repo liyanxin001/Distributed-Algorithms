@@ -7,9 +7,11 @@ import java.util.logging.Logger;
 
 
 import com.greatfree.cluster.tpc.child.app.Coordinator;
+import com.greatfree.cluster.tpc.message.AbortNotification;
 import com.greatfree.cluster.tpc.message.AppID;
 import com.greatfree.cluster.tpc.message.AssignCoordinatorNotification;
 import com.greatfree.cluster.tpc.message.CommitNotification;
+import com.greatfree.cluster.tpc.message.InterAbortNotification;
 import com.greatfree.cluster.tpc.message.InterCommitNotification;
 import com.greatfree.cluster.tpc.message.TransferRequest;
 
@@ -64,6 +66,10 @@ final class TPCChildTask extends ChildTask{
 	        	log.info("COMMIT_NOTIFICATION received @" + Calendar.getInstance().getTime());
 	        	CommitNotification cn = (CommitNotification) notification;
 	        	return new InterCommitNotification(cn);
+	        case AppID.ABORT_NOTIFICATION:
+	        	log.info("ABORT_NOTIFICATION received @" + Calendar.getInstance().getTime());
+	        	AbortNotification an = (AbortNotification) notification;
+	        	return new InterAbortNotification(an);
 	    }
 		return null;
 	}

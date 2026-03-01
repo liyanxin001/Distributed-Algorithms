@@ -16,35 +16,35 @@ public class AssignParticipantNotification extends IntercastNotification{
 	
 	
 	private static final long serialVersionUID = -2489632395927452525L;
-	private String coordinator;
-	private String participant;
+	private String coordinatorId;
+	private String participantId;
 	private ParticipantState participantState;
 	
 
 	public AssignParticipantNotification(String coordinator, String participant, ParticipantState participantState) {
 		super(coordinator, participant, AppID.ASSIGN_PARTICIPANT_NOTIFICATION);
-        this.setCoordinator(coordinator);
-        this.setParticipant(participant);
+        this.setCoordinatorId(coordinator);
+        this.setParticipantId(participant);
 	}
 
 
-	public String getCoordinator() {
-		return coordinator;
+	public String getCoordinatorId() {
+		return coordinatorId;
 	}
 
 
-	public void setCoordinator(String coordinator) {
-		this.coordinator = coordinator;
+	public void setCoordinatorId(String coordinator) {
+		this.coordinatorId = coordinator;
 	}
 
 
-	public String getParticipant() {
-		return participant;
+	public String getParticipantId() {
+		return participantId;
 	}
 
 
-	public void setParticipant(String participant) {
-		this.participant = participant;
+	public void setParticipantId(String participant) {
+		this.participantId = participant;
 	}
 
 
