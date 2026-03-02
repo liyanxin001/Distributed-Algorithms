@@ -7,12 +7,17 @@ import java.util.logging.Logger;
 
 
 import com.greatfree.cluster.tpc.child.app.Coordinator;
+import com.greatfree.cluster.tpc.child.app.Participant;
 import com.greatfree.cluster.tpc.message.AbortNotification;
 import com.greatfree.cluster.tpc.message.AppID;
 import com.greatfree.cluster.tpc.message.AssignCoordinatorNotification;
+import com.greatfree.cluster.tpc.message.AssignParticipantNotification;
 import com.greatfree.cluster.tpc.message.CommitNotification;
 import com.greatfree.cluster.tpc.message.InterAbortNotification;
+import com.greatfree.cluster.tpc.message.InterAssignParticipantNotification;
 import com.greatfree.cluster.tpc.message.InterCommitNotification;
+import com.greatfree.cluster.tpc.message.InterPrepareRequest;
+import com.greatfree.cluster.tpc.message.PrepareRequest;
 import com.greatfree.cluster.tpc.message.TransferRequest;
 
 import edu.greatfree.cluster.child.ChildTask;
@@ -62,10 +67,17 @@ final class TPCChildTask extends ChildTask{
 	{
 	    switch(notification.getAppID()) 
 	    {
+	        case AppID.ASSIGN_PARTICIPANT_NOTIFICATION:
+	    	    log.info("ASSIGN_PARTICIPANT_NOTIFICATION received @" + Calendar.getInstance().getTime());
+	    	    AssignParticipantNotification apn = (AssignParticipantNotification) notification;
+	    	    Coordinator.CO().addParticipant(new Participant(apn.getParticipantId(), apn.getParticipantState()));
+	    	    return new InterAssignParticipantNotification(apn);
+	    	    
 	        case AppID.COMMIT_NOTIFICATION:
 	        	log.info("COMMIT_NOTIFICATION received @" + Calendar.getInstance().getTime());
 	        	CommitNotification cn = (CommitNotification) notification;
 	        	return new InterCommitNotification(cn);
+	        	
 	        case AppID.ABORT_NOTIFICATION:
 	        	log.info("ABORT_NOTIFICATION received @" + Calendar.getInstance().getTime());
 	        	AbortNotification an = (AbortNotification) notification;
@@ -75,14 +87,31 @@ final class TPCChildTask extends ChildTask{
 	}
 
 	@Override
-	public InterChildrenRequest prepareRequest(IntercastRequest paramIntercastRequest) {
-		// TODO Auto-generated method stub
+	public InterChildrenRequest prepareRequest(IntercastRequest request) 
+	{
+		switch(request.getAppID()) 
+		{
+		    case AppID.PREPARE_REQUEST:
+		    	log.info("PREPARE_REQUEST received @" + Calendar.getInstance().getTime());
+		    	PrepareRequest pr = (PrepareRequest) request;
+		        return new InterPrepareRequest(pr);	
+		}
 		return null;
 	}
 
 	@Override
-	public void processNotification(InterChildrenNotification paramInterChildrenNotification) {
-		// TODO Auto-generated method stub
+	public void processNotification(InterChildrenNotification notification) 
+	{
+		switch(notification.getAppID()) 
+		{
+		    case AppID.ASSIGN_PARTICIPANT_NOTIFICATION:
+		    	log.info("ASSIGN_PARTICAIPANT_NOTIFICATION received @" + Calendar.getInstance().getTime());
+		    	InterAssignParticipantNotification iapn = (InterAssignParticipantNotification) notification;
+		    	AssignParticipantNotification apn = (AssignParticipantNotification) iapn.getNotification();
+		    	Participant participant = Participant.PA();
+		    	participant.setParticipantId(apn.getParticipantId());
+		    	participant.setParticipantState(apn.getParticipantState());
+		}
 		
 	}
 

@@ -9,11 +9,11 @@ public class TransferRequest extends ClusterRequest{
 	
 	private static final long serialVersionUID = -215038106311712765L;
 	private String transactionId;
-	private String coordinator;
+	private String coordinatorId;
     
 	public TransferRequest(String coordinator, String transactionId) {
 		super(coordinator, AppID.TRANSFER_REQUEST);
-		this.setCoordinator(coordinator);
+		this.setCoordinatorId(coordinator);
 		this.setTransactionId(transactionId);
 	}
 
@@ -25,12 +25,12 @@ public class TransferRequest extends ClusterRequest{
 		this.transactionId = transactionId;
 	}
 
-	public String getCoordinator() {
-		return coordinator;
+	public String getCoordinatorId() {
+		return coordinatorId;
 	}
 
-	public void setCoordinator(String coordinator) {
-		this.coordinator = coordinator;
+	public void setCoordinatorId(String coordinator) {
+		this.coordinatorId = coordinator;
 	}
 
 }

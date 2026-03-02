@@ -5,9 +5,9 @@ package com.greatfree.cluster.tpc.child.app;
 
 // Class representing a single node (database) in the distributed system
 public class Participant {
-    private String name;
+    private String participantId;
     private ParticipantState state;
-    private boolean simulateFailure;
+    
     
     
 
@@ -23,15 +23,24 @@ public class Participant {
 		     
 	  return instance;
 	}
+	
+	public Participant(String participantId, ParticipantState state) {
+		this.participantId = participantId;
+		this.state = state;	
+	}
+	
 
-    // Phase 1: The Prepare call
+    public Participant() {
+		// TODO Auto-generated constructor stub
+	}
+
+	// Phase 1: The Prepare call
     public boolean prepare(String transactionId) {
         log(transactionId, "Received prepare request.");
 
         // Simulate a random failure or a business rule violation
-        if (simulateFailure) {
-            log(transactionId, "Simulating failure or vote NO. Aborting.");
-            this.state = ParticipantState.FAILED;
+        if (this.state == ParticipantState.FAILED) {
+            log(transactionId, "Simulating failure. Aborting.");  
             return false; // Vote NO
         }
 
@@ -65,10 +74,18 @@ public class Participant {
     }
 
     private void log(String transactionId, String message) {
-        System.out.println("[" + name + "] [TX: " + transactionId + "] " + message);
+        System.out.println("[" + participantId + "] [TX: " + transactionId + "] " + message);
     }
 
     public ParticipantState getState() {
         return state;
+    }
+    
+    public void setParticipantId(String participantId) {
+    	this.participantId = participantId;
+    }
+    
+    public void setParticipantState(ParticipantState state) {
+    	this.state = state;
     }
 }
