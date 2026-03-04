@@ -1,6 +1,7 @@
 package com.greatfree.cluster.tpc.child;
 
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.logging.Logger;
@@ -18,6 +19,7 @@ import com.greatfree.cluster.tpc.message.InterAssignParticipantNotification;
 import com.greatfree.cluster.tpc.message.InterCommitNotification;
 import com.greatfree.cluster.tpc.message.InterPrepareRequest;
 import com.greatfree.cluster.tpc.message.PrepareRequest;
+import com.greatfree.cluster.tpc.message.PrepareResponse;
 import com.greatfree.cluster.tpc.message.TransferRequest;
 
 import edu.greatfree.cluster.child.ChildTask;
@@ -102,6 +104,13 @@ final class TPCChildTask extends ChildTask{
 	@Override
 	public void processNotification(InterChildrenNotification notification) 
 	{
+
+		
+	}
+
+	@Override
+	public void processNotification(InterChildrenNotification notification, List<String> destinationKeys) 
+	{
 		switch(notification.getAppID()) 
 		{
 		    case AppID.ASSIGN_PARTICIPANT_NOTIFICATION:
@@ -111,13 +120,23 @@ final class TPCChildTask extends ChildTask{
 		    	Participant participant = Participant.PA();
 		    	participant.setParticipantId(apn.getParticipantId());
 		    	participant.setParticipantState(apn.getParticipantState());
+		    	break;
+		    	
+		    case AppID.ABORT_NOTIFICATION:
+		    	log.info("ABORT_NOTIFICATION received @" + Calendar.getInstance().getTime());
+		    	InterAbortNotification ian = (InterAbortNotification) notification;
+		    	AbortNotification an = (AbortNotification) ian.getNotification();
+		    	Participant.PA().abort(an.getTransactionId());
+		    	break;
+		    	
+		    case AppID.COMMIT_NOTIFICATION:
+		    	log.info("ABORT_NOTIFICATION received @" + Calendar.getInstance().getTime());
+		    	InterCommitNotification icn = (InterCommitNotification) notification;
+		    	CommitNotification cn = (CommitNotification) icn.getNotification();
+		    	Participant.PA().commit(cn.getTransactionId());
+		    	break;
+		  
 		}
-		
-	}
-
-	@Override
-	public void processNotification(InterChildrenNotification paramInterChildrenNotification, List<String> paramList) {
-		// TODO Auto-generated method stub
 		
 	}
 
@@ -128,9 +147,20 @@ final class TPCChildTask extends ChildTask{
 	}
 
 	@Override
-	public List<MulticastResponse> processRequest(InterChildrenRequest paramInterChildrenRequest,
-			List<String> paramList) {
-		// TODO Auto-generated method stub
+	public List<MulticastResponse> processRequest(InterChildrenRequest request,
+			List<String> destinationKeys) 
+	{
+		List<MulticastResponse> responses;
+		switch(request.getAppID()) 
+		{
+		    case AppID.PREPARE_REQUEST:
+		    	log.info("PREPARE_REQUEST received" + Calendar.getInstance().getTime());
+		    	InterPrepareRequest ipr = (InterPrepareRequest) request;
+		    	responses = new ArrayList<MulticastResponse>();
+		    	PrepareRequest pr = (PrepareRequest) ipr.getRequest();
+		    	responses.add(new PrepareResponse(Participant.PA().prepare(pr.getTransactionId()),request.getCollaboratorKey()));
+		    	return responses;
+		}
 		return null;
 	}
 
