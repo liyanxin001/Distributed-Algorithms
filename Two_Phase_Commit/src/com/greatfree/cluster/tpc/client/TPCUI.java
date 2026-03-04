@@ -78,7 +78,7 @@ final class TPCUI {
 		    case MenuOptions.ASSIGN_AN_ACTIVE_PARTICIPANT:
 		    	System.out.println("Create an ID for this active participant:");
 		    	String participantId_2 = Tools.INPUT.nextLine();
-		    	System.out.println("Who is the coordinator of it?");
+		    	System.out.println("Who is its coordinator?");
 		    	String coordinatorId_2 = Tools.INPUT.nextLine();
 		    	ClusterClient.MULTI().syncNotify(TPCUI.CL().getRootAddress().getIP(), TPCUI.
 			    		  CL().getRootAddress().getPort(), new AssignParticipantNotification(coordinatorId_2, participantId_2, ParticipantState.ACTIVE));
@@ -87,7 +87,7 @@ final class TPCUI {
 		    case MenuOptions.ASSIGN_A_FAILED_PARTICIPANT:
 		    	System.out.println("Create an ID for this failed participant:");
 		    	String participantId_3 = Tools.INPUT.nextLine();
-		    	System.out.println("Who is the coordinator of it?");
+		    	System.out.println("Who is its coordinator?");
 		    	String coordinatorId_3 = Tools.INPUT.nextLine();
 		    	ClusterClient.MULTI().syncNotify(TPCUI.CL().getRootAddress().getIP(), TPCUI.
 		    			  CL().getRootAddress().getPort(), new AssignParticipantNotification(coordinatorId_3, participantId_3, ParticipantState.FAILED));
