@@ -15,7 +15,7 @@ public class PrepareRequest extends IntercastRequest{
 	
 	public PrepareRequest(String coordinator, List<String> participants,String transactionId) 
 	{
-		super(RequestType.INTER_BROADCAST_REQUEST, coordinator, participants, AppID.PREPARE_REQUEST);
+		super(RequestType.BROADCAST_REQUEST, coordinator, participants, AppID.PREPARE_REQUEST);
         this.setTransactionId(transactionId);
 	}
 

@@ -134,8 +134,7 @@ final class TPCChildTask extends ChildTask{
 		    	InterCommitNotification icn = (InterCommitNotification) notification;
 		    	CommitNotification cn = (CommitNotification) icn.getNotification();
 		    	Participant.PA().commit(cn.getTransactionId());
-		    	break;
-		  
+		    	break;  
 		}
 		
 	}
@@ -165,7 +164,7 @@ final class TPCChildTask extends ChildTask{
 	}
 
 	@Override
-	public void processResponse(ClusterResponse paramClusterResponse) {
+	public void processResponse(ClusterResponse response) {
 		// TODO Auto-generated method stub
 		
 	}
