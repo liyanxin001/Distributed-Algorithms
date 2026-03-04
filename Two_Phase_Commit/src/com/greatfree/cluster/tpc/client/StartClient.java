@@ -2,7 +2,7 @@ package com.greatfree.cluster.tpc.client;
 
 import java.io.IOException;
 
-
+import org.greatfree.exceptions.NullClassConversionException;
 import org.greatfree.exceptions.RemoteReadException;
 import org.greatfree.util.Tools;
 
@@ -32,7 +32,16 @@ final class StartClient {
 				optionStr = Tools.INPUT.nextLine();
 				option = Integer.parseInt(optionStr);
 				System.out.println("Your choice:" + option);
-				TPCUI.CL().execute(option);
+				try 
+				{
+					TPCUI.CL().execute(option);
+				} 
+				catch (ClassNotFoundException | IOException | InterruptedException | RemoteReadException
+						| NullClassConversionException e) 
+				{
+					
+					e.printStackTrace();
+				}
 
 		}
 		ClusterClient.MULTI().dispose();

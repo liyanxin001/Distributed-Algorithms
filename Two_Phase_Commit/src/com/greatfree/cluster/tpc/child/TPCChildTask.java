@@ -21,6 +21,7 @@ import com.greatfree.cluster.tpc.message.InterPrepareRequest;
 import com.greatfree.cluster.tpc.message.PrepareRequest;
 import com.greatfree.cluster.tpc.message.PrepareResponse;
 import com.greatfree.cluster.tpc.message.TransferRequest;
+import com.greatfree.cluster.tpc.message.TransferResponse;
 
 import edu.greatfree.cluster.child.ChildTask;
 
@@ -60,6 +61,7 @@ final class TPCChildTask extends ChildTask{
 			    log.info("TRANSFER_REQUEST received @" + Calendar.getInstance().getTime());
 		        TransferRequest tr = (TransferRequest) request;
 		        Coordinator.CO().setTransactionId(tr.getTransactionId());
+		        return new TransferResponse(true, tr.getCollaboratorKey());
 		}
         return null;
 	}
