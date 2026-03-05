@@ -10,7 +10,7 @@ import org.greatfree.util.IPAddress;
 import org.greatfree.util.Tools;
 
 
-import com.greatfree.cluster.tpc.child.app.Participant;
+
 import com.greatfree.cluster.tpc.child.app.ParticipantState;
 import com.greatfree.cluster.tpc.message.AbortNotification;
 import com.greatfree.cluster.tpc.message.AssignCoordinatorNotification;
