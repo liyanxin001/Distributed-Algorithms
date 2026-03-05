@@ -74,7 +74,7 @@ final class TPCChildTask extends ChildTask{
 	        case AppID.ASSIGN_PARTICIPANT_NOTIFICATION:
 	    	    log.info("ASSIGN_PARTICIPANT_NOTIFICATION received @" + Calendar.getInstance().getTime());
 	    	    AssignParticipantNotification apn = (AssignParticipantNotification) notification;
-	    	    Coordinator.CO().addParticipant(new Participant(apn.getParticipantId(), apn.getParticipantState()));
+	    	    Coordinator.CO().addParticipant(apn.getParticipantId());
 	    	    return new InterAssignParticipantNotification(apn);
 	    	    
 	        case AppID.COMMIT_NOTIFICATION:

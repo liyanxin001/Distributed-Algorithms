@@ -13,7 +13,7 @@ public class PrepareResponse extends MulticastResponse{
 		this.setVote(vote);
 	}
 
-	public boolean isVote() {
+	public boolean getVote() {
 		return vote;
 	}
 

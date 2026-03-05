@@ -12,11 +12,13 @@ public class PrepareRequest extends IntercastRequest{
 	private static final long serialVersionUID = -4237038170415870101L;
 
 	private String transactionId;
+	private String coordinatorId;
 	
-	public PrepareRequest(String coordinator, List<String> participants,String transactionId) 
+	public PrepareRequest(String coordinatorId, List<String> participants,String transactionId) 
 	{
-		super(RequestType.BROADCAST_REQUEST, coordinator, participants, AppID.PREPARE_REQUEST);
-        this.setTransactionId(transactionId);
+		super(RequestType.BROADCAST_REQUEST, coordinatorId, participants, AppID.PREPARE_REQUEST);
+        this.transactionId = transactionId;
+        this.setCoordinatorId(coordinatorId);
 	}
 
 	public String getTransactionId() {
@@ -25,6 +27,14 @@ public class PrepareRequest extends IntercastRequest{
 
 	public void setTransactionId(String transactionId) {
 		this.transactionId = transactionId;
+	}
+
+	public String getCoordinatorId() {
+		return coordinatorId;
+	}
+
+	public void setCoordinatorId(String coordinatorId) {
+		this.coordinatorId = coordinatorId;
 	}
 
 

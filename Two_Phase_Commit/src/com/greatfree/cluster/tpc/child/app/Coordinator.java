@@ -8,7 +8,7 @@ import java.util.List;
 public class Coordinator {
 	private String coordinatorId;
     private String transactionId;
-    private List<Participant> participants;
+    private List<String> participants;
     
     
     private static Coordinator instance = new Coordinator();
@@ -24,7 +24,7 @@ public class Coordinator {
 	  return instance;
 	}
 
-    public void addParticipant(Participant participant) {
+    public void addParticipant(String participant) {
         participants.add(participant);
     }
 

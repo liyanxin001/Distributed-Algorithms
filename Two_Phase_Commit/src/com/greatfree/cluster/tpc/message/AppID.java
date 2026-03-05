@@ -11,6 +11,8 @@ public class AppID {
 	public final static int TRANSFER_RESPONSE = 80008;
 	public final static int ASSIGN_PARTICIPANT_NOTIFICATION = 80009;
 	public final static int ASSIGN_COORDINATOR_NOTIFICATION = 80010;
+	public final static int GET_PARTICIPANTS_REQUEST = 80011;
+	public final static int GET_PARTICIPANTS_RESPONSE = 80012;
 	
 
 }

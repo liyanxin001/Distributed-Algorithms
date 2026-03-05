@@ -7,19 +7,19 @@ public class TransferResponse extends MulticastResponse{
 	
 	private static final long serialVersionUID = -206784823564235985L;
 	
-	private boolean isSucceeded;
+	private boolean isProceeding;
 
 	public TransferResponse(boolean isSucceeded, String collaboratorKey) {
 		super(AppID.TRANSFER_RESPONSE, collaboratorKey);
-		// TODO Auto-generated constructor stub
+
 	}
 
-	public boolean isSucceeded() {
-		return isSucceeded;
+	public boolean isProceeding() {
+		return isProceeding;
 	}
 
-	public void setSucceeded(boolean isSucceeded) {
-		this.isSucceeded = isSucceeded;
+	public void setProceeding(boolean isSucceeded) {
+		this.isProceeding = isSucceeded;
 	}
 	
 
