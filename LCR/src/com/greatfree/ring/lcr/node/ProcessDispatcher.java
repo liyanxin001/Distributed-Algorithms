@@ -19,7 +19,7 @@ import edu.greatfree.container.ServerProfile;
 
 
 
-class NodeDispatcher extends ServerDispatcher<ServerMessage>
+class ProcessDispatcher extends ServerDispatcher<ServerMessage>
 
 
 
@@ -29,7 +29,7 @@ class NodeDispatcher extends ServerDispatcher<ServerMessage>
 	private NotificationDispatcher<SendNotification, SendNotificationThread, SendNotificationThreadCreator> SendNotificationDispatcher;
 	
 	
-	public NodeDispatcher(ServerDispatcherProfile profile) {
+	public ProcessDispatcher(ServerDispatcherProfile profile) {
 		super(profile);
 		this.SendNotificationDispatcher = new NotificationDispatcher<SendNotification, SendNotificationThread, SendNotificationThreadCreator>(ServerProfile.getNotificationDispatcherProfile(new SendNotificationThreadCreator(), getScheduler()));
 	}
