@@ -14,7 +14,7 @@ import edu.greatfree.exceptions.TaskAlreadyExistedException;
 /*    */ {
 /*    */   public static void main(String[] args) throws ClassNotFoundException, IOException, RemoteReadException, TaskAlreadyExistedException, InterruptedException {
 /* 24 */     System.out.println("process starting up ...");
-/* 25 */     Process.PR().start();
+/* 25 */     Process.PR().start("Root", 8001, "192.168.1.25", 8941);
 /* 26 */     System.out.println("process started ...");
 /* 27 */     TerminateSignal.SIGNAL().waitTermination();
 
