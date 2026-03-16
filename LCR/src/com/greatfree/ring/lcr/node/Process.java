@@ -4,11 +4,14 @@ import java.io.IOException;
 import java.util.logging.Logger;
 
 import org.greatfree.exceptions.RemoteReadException;
+import org.greatfree.server.ServerDispatcherProfile;
 import org.greatfree.util.IPAddress;
+import org.greatfree.util.Tools;
 
-import edu.greatfree.cluster.ClusterSpec;
-import edu.greatfree.framework.multicast.MulticastProfile;
-import edu.greatfree.multicast.root.RootClient;
+import edu.greatfree.client.CSClient;
+import edu.greatfree.client.ClientProfile;
+import edu.greatfree.container.ServerProfile;
+import edu.greatfree.container.server.ServerSpec;
 import edu.greatfree.server.Peer;
 
 public class Process {
@@ -16,12 +19,15 @@ public class Process {
 	private static final Logger log = Logger.getLogger("edu.greatfree.cluster.child");
 	
 	private Peer<ProcessDispatcher> peer;
-	private int UID;
-	private String successor;
-	private String predecessor;
+	private String UID;
+    private boolean isLeader;
 	private IPAddress localAddress;
-    
-	private ClusterSpec specs;
+	private String registryIP;
+	private int registryPort;
+	private ServerDispatcherProfile sdProfile;
+	private ServerSpec.ServerSpecBuilder sBuilder;
+	private CSClient.CSClientBuilder cBuilder;
+	
 	
 	private static Process instance = new Process();
 	
@@ -36,7 +42,12 @@ public class Process {
 		return instance;
 	}
 	
-	 public void start() throws IOException, InterruptedException, ClassNotFoundException, RemoteReadException {
+	 public void start(String rootName, int port, String registryIP, int registryPort) throws IOException, InterruptedException, ClassNotFoundException, RemoteReadException {
+		 this.setSdProfile(ServerProfile.getDispatcherProfile());
+		 this.setsBuilder(ServerProfile.getLightServerBuilder(port));
+		 this.setcBuilder(ClientProfile.getLightProfile());
+		 this.UID = Tools.generateUniqueKey();
+		 this.setLeader(false);
 		 this.peer.start();
 		 this.localAddress = new IPAddress(this.peer.getPeerIP(), this.peer.getPort());
 		 
@@ -47,10 +58,10 @@ public class Process {
 	public void setPeer(Peer<ProcessDispatcher> peer) {
 		this.peer = peer;
 	}
-	public int getUID() {
+	public String getUID() {
 		return UID;
 	}
-	public void setUID(int uID) {
+	public void setUID(String uID) {
 		UID = uID;
 	}
 
@@ -64,33 +75,54 @@ public class Process {
 	}
 
 
-	public String getPredecessor() {
-		return predecessor;
+
+
+	public boolean isLeader() {
+		return isLeader;
 	}
 
-
-	public void setPredecessor(String predecessor) {
-		this.predecessor = predecessor;
+	public void setLeader(boolean isLeader) {
+		this.isLeader = isLeader;
 	}
 
-
-	public String getSuccessor() {
-		return successor;
+	public String getRegistryIP() {
+		return registryIP;
 	}
 
-
-	public void setSuccessor(String successor) {
-		this.successor = successor;
+	public void setRegistryIP(String registryIP) {
+		this.registryIP = registryIP;
 	}
 
-
-	public ClusterSpec getSpecs() {
-		return specs;
+	public int getRegistryPort() {
+		return registryPort;
 	}
 
+	public void setRegistryPort(int registryPort) {
+		this.registryPort = registryPort;
+	}
 
-	public void setSpecs(ClusterSpec specs) {
-		this.specs = specs;
+	public ServerDispatcherProfile getSdProfile() {
+		return sdProfile;
+	}
+
+	public void setSdProfile(ServerDispatcherProfile sdProfile) {
+		this.sdProfile = sdProfile;
+	}
+
+	public ServerSpec.ServerSpecBuilder getsBuilder() {
+		return sBuilder;
+	}
+
+	public void setsBuilder(ServerSpec.ServerSpecBuilder sBuilder) {
+		this.sBuilder = sBuilder;
+	}
+
+	public CSClient.CSClientBuilder getcBuilder() {
+		return cBuilder;
+	}
+
+	public void setcBuilder(CSClient.CSClientBuilder cBuilder) {
+		this.cBuilder = cBuilder;
 	}
 
 }
