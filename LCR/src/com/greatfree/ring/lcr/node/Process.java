@@ -53,9 +53,9 @@ public class Process {
 		 
 	 }
 	 
-	 public void notify(String characterKey) throws IOException, InterruptedException {
+	public void notify(String characterKey) throws IOException, InterruptedException {
 		 this.peer.syncNotify(characterKey, registryPort, null);
-	 }
+	}
 	public Peer<ProcessDispatcher> getPeer() {
 		return peer;
 	}
