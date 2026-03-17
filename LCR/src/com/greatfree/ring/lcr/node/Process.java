@@ -52,6 +52,10 @@ public class Process {
 		 this.localAddress = new IPAddress(this.peer.getPeerIP(), this.peer.getPort());
 		 
 	 }
+	 
+	 public void notify(String characterKey) throws IOException, InterruptedException {
+		 this.peer.syncNotify(characterKey, registryPort, null);
+	 }
 	public Peer<ProcessDispatcher> getPeer() {
 		return peer;
 	}

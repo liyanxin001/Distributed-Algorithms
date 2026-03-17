@@ -24,7 +24,9 @@ import com.greatfree.ring.lcr.message.SendNotification;
 /*    */         try {
 /* 31 */           SendNotification notification = (SendNotification)dequeue();
 /* 32 */           int result = Process.PR().getUID().compareTo(notification.getUID());
-
+                   if(result < 0) {
+                	   Process.PR().notify();
+                   }
 /* 33 */           disposeMessage(notification);
 /*    */         }
 /* 35 */         catch (InterruptedException e) {
