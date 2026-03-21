@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.greatfree.exceptions.RemoteReadException;
-
+import org.greatfree.framework.container.p2p.message.LeaveClusterNotification;
 import org.greatfree.util.IPAddress;
 import org.greatfree.util.Tools;
 
@@ -37,15 +37,31 @@ public class Process {
 		this.peer = new Peer<ProcessDispatcher>(PeerProfile.getSyncPeerProfile(this.spec, pd));
 	    this.defaultTaskKey = pd.getServerKey();
 	    this.setIsShutdown(new AtomicBoolean(false));
+	    
 	}
 	
-	 public void start(String rootName, int nodeNumber, int port, String registryIP, int registryPort) throws IOException, InterruptedException, ClassNotFoundException, RemoteReadException {
-
-		 
-	 }
+	public void start() throws IOException, InterruptedException, ClassNotFoundException, RemoteReadException {
+		this.peer.start();
+	    this.localAddress = new IPAddress(this.peer.getPeerIP(), this.peer.getPort());	 
+	}
+	
+	public void stop() throws IOException, InterruptedException, ClassNotFoundException, RemoteReadException {
+		this.isShutdown.set(true);
+		this.peer.syncNotify(this.spec.getRegistryIP(), this.spec.getRegistryPort(), new LeaveClusterNotification(this.spec.getRootKey(), this.peer.getPeerID()));
+		this.peer.stop(this.spec.getServerBuilder().getShutdownServerTimeout());
+	}
 	 
 	public void notify(String characterKey) throws IOException, InterruptedException {
-		 this.peer.syncNotify(characterKey, spec.getRegistryPort(), null);
+		this.peer.syncNotify(characterKey, spec.getRegistryPort(), null);
+	}
+	
+	
+	public int getProcessPort() {
+		return this.peer.getPort();
+	}
+	
+	public String getProcessIP() {
+		return this.peer.getPeerIP();
 	}
 	public Peer<ProcessDispatcher> getPeer() {
 		return peer;
