@@ -7,7 +7,9 @@ import org.greatfree.exceptions.RemoteReadException;
 import org.greatfree.util.IPAddress;
 import org.greatfree.util.TerminateSignal;
 
-import edu.greatfree.cluster.ClusterSpec;
+import com.greatfree.ring.RingSpec;
+
+
 
 import edu.greatfree.exceptions.TaskAlreadyExistedException;
 
@@ -43,8 +45,8 @@ import edu.greatfree.exceptions.TaskAlreadyExistedException;
 /*    */   }
 /*    */ 
 /*    */   
-/*    */   public void start(ClusterSpec spec) throws ClassNotFoundException, IOException, RemoteReadException, TaskAlreadyExistedException, InterruptedException {
-/* 54 */     this.process = new Process(spec);
+/*    */   public void start(RingSpec ringSpec) throws ClassNotFoundException, IOException, RemoteReadException, TaskAlreadyExistedException, InterruptedException {
+/* 54 */     this.process = new Process(ringSpec);
 /*    */     this.process.start();
 /*    */     
 /* 59 */     

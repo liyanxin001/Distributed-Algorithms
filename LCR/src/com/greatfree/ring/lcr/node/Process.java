@@ -9,8 +9,9 @@ import org.greatfree.framework.container.p2p.message.LeaveClusterNotification;
 import org.greatfree.util.IPAddress;
 import org.greatfree.util.Tools;
 
+import com.greatfree.ring.RingSpec;
 
-import edu.greatfree.cluster.ClusterSpec;
+
 
 import edu.greatfree.container.PeerProfile;
 
@@ -25,16 +26,16 @@ public class Process {
     private boolean isLeader;
 	private IPAddress localAddress;
 	private AtomicBoolean isShutdown;
-	private ClusterSpec spec;
+	private RingSpec spec;
 	private final String defaultTaskKey;
 	
 
 	
-	public Process(ClusterSpec spec) throws IOException {
-		this.spec = spec;
+	public Process(RingSpec ringSpec) throws IOException {
+		this.spec = ringSpec;
 		this.UID = Tools.generateUniqueKey();
 		ProcessDispatcher pd = new ProcessDispatcher(this.spec.getDispatcherProfile());
-		this.peer = new Peer<ProcessDispatcher>(PeerProfile.getSyncPeerProfile(this.spec, pd));
+		this.peer = new Peer<ProcessDispatcher>(PeerProfile.getSyncPeerProfile(spec.getPeerName(), spec.getServerBuilder().getPort(), spec.getRegistryIP(), spec.getRegistryPort(), pd));
 	    this.defaultTaskKey = pd.getServerKey();
 	    this.setIsShutdown(new AtomicBoolean(false));
 	    
