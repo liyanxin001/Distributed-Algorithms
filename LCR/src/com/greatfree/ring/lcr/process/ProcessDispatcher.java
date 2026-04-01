@@ -1,4 +1,4 @@
-package com.greatfree.ring.lcr.node;
+package com.greatfree.ring.lcr.process;
 
 import java.util.Calendar;
 import java.util.concurrent.RejectedExecutionException;
@@ -24,7 +24,7 @@ class ProcessDispatcher extends ServerDispatcher<ServerMessage>
 
 
 {
-	private static final Logger log = Logger.getLogger("com.greatfree.LCR.node");
+	private static final Logger log = Logger.getLogger("com.greatfree.LCR.process");
 	
 	private NotificationDispatcher<SendNotification, SendNotificationThread, SendNotificationThreadCreator> SendNotificationDispatcher;
 	

@@ -1,4 +1,4 @@
-package com.greatfree.ring.lcr.node;
+package com.greatfree.ring.lcr.process;
 
 import java.io.IOException;
 
