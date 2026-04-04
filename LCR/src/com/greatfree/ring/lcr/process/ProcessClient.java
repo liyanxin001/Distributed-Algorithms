@@ -11,6 +11,11 @@ final class ProcessClient
 	public ProcessClient(FreeClientPool clientPool) {
 		this.setEventer(new SyncRemoteEventer<ServerMessage>(clientPool));
 	}
+	
+	
+	public void dispose() {
+		this.eventer.dispose();
+	}
 
 	public SyncRemoteEventer<ServerMessage> getEventer() {
 		return eventer;
