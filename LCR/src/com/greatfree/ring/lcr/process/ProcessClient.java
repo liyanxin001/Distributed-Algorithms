@@ -12,6 +12,8 @@ import org.greatfree.client.SyncRemoteEventer;
 import org.greatfree.message.ServerMessage;
 import org.greatfree.util.IPAddress;
 
+import com.greatfree.ring.lcr.message.SendNotification;
+
 
 final class ProcessClient 
 {
@@ -34,15 +36,15 @@ final class ProcessClient
 		this.eventer = eventer;
 	}
 	
-	public void notify(ServerMessage notification, Set<String> leftNodeKeys) throws IOException 
+	public void notify(SendNotification notification, Set<String> otherNodeKeys) throws IOException 
 	{
-		Map<String, String> ring = Ring.constructRing("RootKey", leftNodeKeys);
+		Map<String, String> ring = Ring.constructRing("RootKey", otherNodeKeys);
 		HashMap<String, IPAddress> leftNodesIPs = new HashMap<String, IPAddress>();
 		for(String nodeKey: ring.keySet()) {
 			leftNodesIPs.put(nodeKey, this.eventer.getIPAddress(nodeKey));
 		}
 		String nextNode = ring.get("RootKey");
-		leftNodesIPs.remove("RootKey");
+		leftNodesIPs.remove(nextNode);
 		this.eventer.notify(nextNode, notification);
 		
 		
