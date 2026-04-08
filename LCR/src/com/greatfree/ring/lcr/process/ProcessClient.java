@@ -45,9 +45,8 @@ final class ProcessClient
 		}
 		String nextNode = ring.get("RootKey");
 		leftNodesIPs.remove(nextNode);
-		this.eventer.notify(nextNode, notification);
-		
-		
+		notification.setLeftNodeKeys(leftNodesIPs);
+		this.eventer.notify(nextNode, notification);	
 	}
 
 }
