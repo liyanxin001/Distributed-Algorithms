@@ -12,7 +12,7 @@ public class SendNotification extends ServerMessage{
 	private String UID;
 	private String senderId;
 	private String originalSenderId;
-	private Map<String, IPAddress> leftNodeKeys;
+	private Map<String, IPAddress> leftNodeIPs;
 
 	public SendNotification(int UID) {
 		super(LCRAppID.SEND_NOTIFICATION);
@@ -43,12 +43,12 @@ public class SendNotification extends ServerMessage{
 		this.originalSenderId = originalSenderId;
 	}
 
-	public Map<String, IPAddress> getLeftNodeKeys() {
-		return leftNodeKeys;
+	public Map<String, IPAddress> getLeftNodeIPs() {
+		return leftNodeIPs;
 	}
 
-	public void setLeftNodeKeys(Map<String, IPAddress> leftNodeKeys) {
-		this.leftNodeKeys = leftNodeKeys;
+	public void setLeftNodeIPs(Map<String, IPAddress> leftNodeIPs) {
+		this.leftNodeIPs = leftNodeIPs;
 	}
 
 }
