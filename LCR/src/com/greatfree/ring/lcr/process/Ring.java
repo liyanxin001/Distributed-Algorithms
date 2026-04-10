@@ -5,11 +5,11 @@ import java.util.HashMap;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+
 
 public class Ring {
 	
-	public static Map<String, String> constructRing(String rootKey, Set<String> nodeKeys) {
+	public static Map<String, String> constructRing(String rootKey, List<String> nodeKeys) {
 	    Map<String, String> ring = new HashMap<String, String>();
 	    
 	    List<String> allNodes = new ArrayList<String>();

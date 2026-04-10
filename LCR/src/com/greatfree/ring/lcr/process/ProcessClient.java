@@ -1,9 +1,9 @@
 package com.greatfree.ring.lcr.process;
 
 import java.io.IOException;
-
+import java.util.ArrayList;
 import java.util.HashMap;
-
+import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,6 +11,7 @@ import org.greatfree.client.FreeClientPool;
 import org.greatfree.client.SyncRemoteEventer;
 import org.greatfree.message.ServerMessage;
 import org.greatfree.util.IPAddress;
+import org.greatfree.util.UtilConfig;
 
 import com.greatfree.ring.lcr.message.SendNotification;
 
@@ -38,19 +39,30 @@ final class ProcessClient
 	
 	public void notify(SendNotification notification, Set<String> otherNodeKeys) throws IOException 
 	{
-		Map<String, String> ring = Ring.constructRing("RootKey", otherNodeKeys);
+		Map<String, String> ring = Ring.constructRing("LocalKey", new ArrayList<String>(otherNodeKeys));
 		HashMap<String, IPAddress> leftNodesIPs = new HashMap<String, IPAddress>();
-		for(String nodeKey: ring.keySet()) {
+		for(String nodeKey: ring.keySet()) 
+		{
 			leftNodesIPs.put(nodeKey, this.eventer.getIPAddress(nodeKey));
 		}
-		String nextNode = ring.get("RootKey");
+		String nextNode = ring.get("LocalKey");
 		leftNodesIPs.remove(nextNode);
 		notification.setLeftNodeIPs(leftNodesIPs);
 		this.eventer.notify(nextNode, notification);	
 	}
 	
-	public void notify(SendNotification notification) {
+	public void notify(SendNotification notification) throws IOException 
+	{
 		Map<String, IPAddress> leftNodes = notification.getLeftNodeIPs();
+		if(leftNodes != UtilConfig.NO_IPS) 
+		{
+			Map<String, String> ring = Ring.constructRing("LocalKey", new LinkedList<String>(leftNodes.keySet()));
+			String nextNode = ring.get("LocalKey");
+			leftNodes.remove(nextNode);
+			notification.setLeftNodeIPs(leftNodes);
+			this.eventer.notify(nextNode, notification);
+		}
+		
 	}
 
 }
