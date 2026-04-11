@@ -48,6 +48,7 @@ final class ProcessClient
 		String nextNode = ring.get("LocalKey");
 		leftNodesIPs.remove(nextNode);
 		notification.setLeftNodeIPs(leftNodesIPs);
+		notification.setFirstSent(true);
 		this.eventer.notify(nextNode, notification);	
 	}
 	

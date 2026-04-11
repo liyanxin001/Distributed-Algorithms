@@ -13,6 +13,7 @@ public class SendNotification extends ServerMessage{
 	private String senderId;
 	private String originalSenderId;
 	private Map<String, IPAddress> leftNodeIPs;
+	private boolean isFirstSent;
 
 	public SendNotification(int UID) {
 		super(LCRAppID.SEND_NOTIFICATION);
@@ -49,6 +50,14 @@ public class SendNotification extends ServerMessage{
 
 	public void setLeftNodeIPs(Map<String, IPAddress> leftNodeIPs) {
 		this.leftNodeIPs = leftNodeIPs;
+	}
+
+	public boolean isFirstSent() {
+		return isFirstSent;
+	}
+
+	public void setFirstSent(boolean isFirstSent) {
+		this.isFirstSent = isFirstSent;
 	}
 
 }

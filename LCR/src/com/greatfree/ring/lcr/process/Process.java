@@ -10,8 +10,7 @@ import org.greatfree.util.IPAddress;
 import org.greatfree.util.Tools;
 
 import com.greatfree.ring.RingSpec;
-
-
+import com.greatfree.ring.lcr.message.SendNotification;
 
 import edu.greatfree.container.PeerProfile;
 
@@ -24,6 +23,7 @@ public class Process {
 	private Peer<ProcessDispatcher> peer;
 	private String UID;
     private boolean isLeader;
+    private ProcessClient client;
 	private IPAddress localAddress;
 	private AtomicBoolean isShutdown;
 	private RingSpec spec;
@@ -56,7 +56,18 @@ public class Process {
 		this.peer.syncNotify(characterKey, spec.getRegistryPort(), null);
 	}
 	
-	
+	public void processNotification(SendNotification notification) throws IOException
+	{	
+		if(!notification.isFirstSent()) 
+		{
+			this.client.notify(notification, this.client.getEventer().getClientKeys());
+		}
+		else
+		{
+			this.client.notify(notification);
+		}
+		
+	}	
 	public int getProcessPort() {
 		return this.peer.getPort();
 	}
