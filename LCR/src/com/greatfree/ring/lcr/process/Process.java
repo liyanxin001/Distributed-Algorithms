@@ -60,10 +60,13 @@ public class Process {
 	{	
 		if(!notification.isFirstSent()) 
 		{
+            notification.setUID(this.UID);
+            notification.setFirstSent(false);
 			this.client.notify(notification, this.client.getEventer().getClientKeys());
 		}
 		else
 		{
+
 			this.client.notify(notification);
 		}
 		
