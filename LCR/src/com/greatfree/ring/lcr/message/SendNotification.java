@@ -9,9 +9,9 @@ public class SendNotification extends ServerMessage{
 	
 	
 	private static final long serialVersionUID = -3336956941945726514L;
-	private String UID;
-	private String senderId;
-	private String originalSenderId;
+	private String LeaderUID;
+	private IPAddress LeaderAddress;
+
 	private Map<String, IPAddress> leftNodeIPs;
 	private boolean isFirstSent;
 
@@ -21,28 +21,13 @@ public class SendNotification extends ServerMessage{
 	}
 
 	public String getUID() {
-		return UID;
+		return LeaderUID;
 	}
 
 	public void setUID(String uID) {
-		UID = uID;
+		LeaderUID = uID;
 	}
 
-	public String getSenderId() {
-		return senderId;
-	}
-
-	public void setSenderId(String senderId) {
-		this.senderId = senderId;
-	}
-
-	public String getOriginalSenderId() {
-		return originalSenderId;
-	}
-
-	public void setOriginalSenderId(String originalSenderId) {
-		this.originalSenderId = originalSenderId;
-	}
 
 	public Map<String, IPAddress> getLeftNodeIPs() {
 		return leftNodeIPs;
@@ -58,6 +43,14 @@ public class SendNotification extends ServerMessage{
 
 	public void setFirstSent(boolean isFirstSent) {
 		this.isFirstSent = isFirstSent;
+	}
+
+	public IPAddress getLeaderAddress() {
+		return LeaderAddress;
+	}
+
+	public void setLeaderAddress(IPAddress leaderAddress) {
+		LeaderAddress = leaderAddress;
 	}
 
 }

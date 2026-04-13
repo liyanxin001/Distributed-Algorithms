@@ -62,8 +62,7 @@ final class ProcessClient
 			leftNodes.remove(nextNode);
 			notification.setLeftNodeIPs(leftNodes);
 			this.eventer.notify(nextNode, notification);
-		}
-		
+		}	
 	}
 
 }

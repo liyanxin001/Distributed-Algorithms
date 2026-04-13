@@ -68,8 +68,7 @@ public class Process {
 		{
             if(this.UID.compareTo(notification.getUID()) > 0) 
             {
-            	notification.setUID(this.UID);
-            	notification.setOriginalSenderId(this.UID);     	
+            	notification.setUID(this.UID);   	
             }
 			this.client.notify(notification);
 		}
