@@ -1,5 +1,7 @@
 package com.greatfree.ring.lcr.process;
 
+import java.io.IOException;
+
 import org.greatfree.concurrency.reactive.NotificationQueue;
 
 import com.greatfree.ring.lcr.message.SendNotification;
@@ -23,13 +25,10 @@ import com.greatfree.ring.lcr.message.SendNotification;
 /*    */         
 /*    */         try {
 /* 31 */           SendNotification notification = (SendNotification)dequeue();
-/* 32 */           int result = UnaryProcess.CLUSTER().getUID().compareTo(notification.getUID());
-                   if(result < 0) {
-                	   UnaryProcess.CLUSTER().notify();
-                   }
+                   ServiceProvider.processNotification(notification);
 /* 33 */           disposeMessage(notification);
 /*    */         }
-/* 35 */         catch (InterruptedException e) {
+/* 35 */         catch (InterruptedException | IOException e) {
 /*    */           
 /* 37 */           e.printStackTrace();
 /*    */         } 
