@@ -39,13 +39,13 @@ final class ProcessClient
 	
 	public void notify(SendNotification notification, Set<String> otherNodeKeys) throws IOException 
 	{
-		Map<String, String> ring = Ring.constructRing("LocalKey", new ArrayList<String>(otherNodeKeys));
+		Map<String, String> ring = Ring.constructRing("RootKey", new ArrayList<String>(otherNodeKeys));
 		HashMap<String, IPAddress> leftNodesIPs = new HashMap<String, IPAddress>();
 		for(String nodeKey: ring.keySet()) 
 		{
 			leftNodesIPs.put(nodeKey, this.eventer.getIPAddress(nodeKey));
 		}
-		String nextNode = ring.get("LocalKey");
+		String nextNode = ring.get("RootKey");
 		leftNodesIPs.remove(nextNode);
 		notification.setLeftNodeIPs(leftNodesIPs);
 		notification.setFirstSent(true);
