@@ -6,7 +6,7 @@ import java.util.logging.Logger;
 import com.greatfree.ring.lcr.message.SendNotification;
 
 
-
+//2026/04/13
 public final class ServiceProvider {
 	
 	public static final Logger log = Logger.getLogger("com.greatfree.ring.lcr");
