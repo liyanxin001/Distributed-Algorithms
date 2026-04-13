@@ -14,7 +14,7 @@ public final class ServiceProvider {
 	private static Process process;
 	
 	
-	public static void processNotification(SendNotification notification) throws IOException 
+	public static void processNotification(SendNotification notification) throws IOException, InterruptedException 
 	{
 		process.processNotification(notification);
 	}

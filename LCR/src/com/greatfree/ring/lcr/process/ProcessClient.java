@@ -13,6 +13,7 @@ import org.greatfree.message.ServerMessage;
 import org.greatfree.util.IPAddress;
 import org.greatfree.util.UtilConfig;
 
+import com.greatfree.ring.lcr.message.LeaderNotification;
 import com.greatfree.ring.lcr.message.SendNotification;
 
 
@@ -52,7 +53,7 @@ final class ProcessClient
 		this.eventer.notify(nextNode, notification);	
 	}
 	
-	public void notify(SendNotification notification) throws IOException 
+	public void notify(SendNotification notification) throws IOException, InterruptedException 
 	{
 		Map<String, IPAddress> leftNodes = notification.getLeftNodeIPs();
 		if(leftNodes != UtilConfig.NO_IPS) 
@@ -62,7 +63,10 @@ final class ProcessClient
 			leftNodes.remove(nextNode);
 			notification.setLeftNodeIPs(leftNodes);
 			this.eventer.notify(nextNode, notification);
-		}	
+		}
+		else {
+			this.eventer.notify(notification.getLeaderAddress().getIP(), notification.getLeaderAddress().getPort(), new LeaderNotification());
+		}
 	}
 
 }

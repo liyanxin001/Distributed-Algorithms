@@ -15,7 +15,7 @@ public class SendNotification extends ServerMessage{
 	private Map<String, IPAddress> leftNodeIPs;
 	private boolean isFirstSent;
 
-	public SendNotification(int UID) {
+	public SendNotification() {
 		super(LCRAppID.SEND_NOTIFICATION);
 		// TODO Auto-generated constructor stub
 	}
@@ -50,7 +50,7 @@ public class SendNotification extends ServerMessage{
 	}
 
 	public void setLeaderAddress(IPAddress leaderAddress) {
-		LeaderAddress = leaderAddress;
+		this.LeaderAddress = leaderAddress;
 	}
 
 }

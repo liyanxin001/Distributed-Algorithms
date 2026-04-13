@@ -56,7 +56,7 @@ public class Process {
 		this.peer.syncNotify(characterKey, spec.getRegistryPort(), null);
 	}
 	
-	public void processNotification(SendNotification notification) throws IOException
+	public void processNotification(SendNotification notification) throws IOException, InterruptedException
 	{	
 		if(!notification.isFirstSent()) 
 		{
