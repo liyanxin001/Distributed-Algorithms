@@ -10,6 +10,7 @@ import org.greatfree.util.IPAddress;
 import org.greatfree.util.Tools;
 
 import com.greatfree.ring.RingSpec;
+import com.greatfree.ring.lcr.message.LeaderNotification;
 import com.greatfree.ring.lcr.message.SendNotification;
 
 import edu.greatfree.container.PeerProfile;
@@ -57,7 +58,8 @@ public class Process {
 	}
 	
 	public void processNotification(SendNotification notification) throws IOException, InterruptedException
-	{	
+	{
+       
 		if(!notification.isFirstSent()) 
 		{
             notification.setUID(this.UID);
@@ -73,7 +75,13 @@ public class Process {
 			this.client.notify(notification);
 		}
 		
-	}	
+	}
+	public void porcessNotification(LeaderNotification notification) 
+	{
+		this.isLeader = true;
+		System.out.println("I am the leader!");
+		
+	}
 	public int getProcessPort() {
 		return this.peer.getPort();
 	}
