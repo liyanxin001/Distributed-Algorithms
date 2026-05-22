@@ -76,7 +76,7 @@ public class Process {
 		}
 		
 	}
-	public void porcessNotification(LeaderNotification notification) 
+	public void processNotification(LeaderNotification notification) 
 	{
 		this.isLeader = true;
 		System.out.println("I am the leader!");

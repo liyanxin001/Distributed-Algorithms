@@ -3,6 +3,7 @@ package com.greatfree.ring.lcr.process;
 import java.io.IOException;
 import java.util.logging.Logger;
 
+import com.greatfree.ring.lcr.message.LeaderNotification;
 import com.greatfree.ring.lcr.message.SendNotification;
 
 
@@ -15,6 +16,11 @@ public final class ServiceProvider {
 	
 	
 	public static void processNotification(SendNotification notification) throws IOException, InterruptedException 
+	{
+		process.processNotification(notification);
+	}
+	
+	public static void processNotification(LeaderNotification notification) 
 	{
 		process.processNotification(notification);
 	}

@@ -4,6 +4,10 @@ import java.io.IOException;
 
 import org.greatfree.exceptions.RemoteReadException;
 
+import com.greatfree.ring.lcr.message.SendNotification;
+
+import edu.greatfree.framework.cluster.multicast.client.ClusterClient;
+
 
 final class RingUI {
 	
@@ -37,10 +41,11 @@ final class RingUI {
 	
 	
 	public void printMenu() {
-		System.out.println("Start leader election? Y/N");
+		System.out.println("Enter '1' to start leader Election.");
 	}
 	
-	public void execute() {
+	public void execute() throws IOException, InterruptedException {
+		ClusterClient.MULTI().syncNotify(this.ip, this.port, new SendNotification());
 		
 	}
 

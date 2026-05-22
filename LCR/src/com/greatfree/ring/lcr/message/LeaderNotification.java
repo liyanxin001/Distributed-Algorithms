@@ -8,7 +8,7 @@ public class LeaderNotification extends ServerMessage{
 
 	public LeaderNotification() {
 		super(LCRAppID.LEADER_NOTIFICATION);
-		// TODO Auto-generated constructor stub
+
 	}
 	
 	
