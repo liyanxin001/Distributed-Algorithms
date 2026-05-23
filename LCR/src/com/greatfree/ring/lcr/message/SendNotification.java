@@ -15,10 +15,9 @@ public class SendNotification extends ServerMessage{
 	private Map<String, IPAddress> leftNodeIPs;
 	private boolean isFirstSent;
 
-	public SendNotification(String leaderUID, IPAddress leaderAddress) {
+	public SendNotification() {
 		super(LCRAppID.SEND_NOTIFICATION);
-		this.leaderUID = leaderUID;
-		this.leaderAddress = leaderAddress;
+
 	}
 
 	public String getUID() {
