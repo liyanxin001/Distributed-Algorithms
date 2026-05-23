@@ -9,23 +9,24 @@ public class SendNotification extends ServerMessage{
 	
 	
 	private static final long serialVersionUID = -3336956941945726514L;
-	private String LeaderUID;
-	private IPAddress LeaderAddress;
+	private String leaderUID;
+	private IPAddress leaderAddress;
 
 	private Map<String, IPAddress> leftNodeIPs;
 	private boolean isFirstSent;
 
-	public SendNotification() {
+	public SendNotification(String leaderUID, IPAddress leaderAddress) {
 		super(LCRAppID.SEND_NOTIFICATION);
-		// TODO Auto-generated constructor stub
+		this.leaderUID = leaderUID;
+		this.leaderAddress = leaderAddress;
 	}
 
 	public String getUID() {
-		return LeaderUID;
+		return leaderUID;
 	}
 
 	public void setUID(String uID) {
-		LeaderUID = uID;
+		leaderUID = uID;
 	}
 
 
@@ -46,11 +47,11 @@ public class SendNotification extends ServerMessage{
 	}
 
 	public IPAddress getLeaderAddress() {
-		return LeaderAddress;
+		return leaderAddress;
 	}
 
 	public void setLeaderAddress(IPAddress leaderAddress) {
-		this.LeaderAddress = leaderAddress;
+		this.leaderAddress = leaderAddress;
 	}
 
 }
