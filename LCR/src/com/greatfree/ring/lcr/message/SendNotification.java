@@ -11,13 +11,12 @@ public class SendNotification extends ServerMessage{
 	private static final long serialVersionUID = -3336956941945726514L;
 	private String leaderUID;
 	private IPAddress leaderAddress;
-
 	private Map<String, IPAddress> leftNodeIPs;
 	private boolean isFirstSent;
 
 	public SendNotification() {
 		super(LCRAppID.SEND_NOTIFICATION);
-
+        this.isFirstSent = true;
 	}
 
 	public String getUID() {
