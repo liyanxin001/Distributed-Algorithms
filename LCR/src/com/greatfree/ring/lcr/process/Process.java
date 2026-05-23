@@ -5,7 +5,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.logging.Logger;
 
 import org.greatfree.exceptions.RemoteReadException;
-import org.greatfree.framework.container.p2p.message.LeaveClusterNotification;
+
 import org.greatfree.util.IPAddress;
 import org.greatfree.util.Tools;
 
@@ -49,7 +49,7 @@ public class Process {
 	
 	public void stop() throws IOException, InterruptedException, ClassNotFoundException, RemoteReadException {
 		this.isShutdown.set(true);
-		this.peer.syncNotify(this.spec.getRegistryIP(), this.spec.getRegistryPort(), new LeaveClusterNotification(this.spec.getRootKey(), this.peer.getPeerID()));
+		//this.peer.syncNotify(this.spec.getRegistryIP(), this.spec.getRegistryPort(), new LeaveClusterNotification(this.spec.getRootKey(), this.peer.getPeerID()));
 		this.peer.stop(this.spec.getServerBuilder().getShutdownServerTimeout());
 	}
 	 
