@@ -6,6 +6,9 @@ final class StartClient {
 	
 		
         RingEventer.RE();
+        
 	
 	}
+	
+	int option = -1;
 }
