@@ -1,14 +1,21 @@
 package com.greatfree.ring.lcr.client;
 
+import java.io.IOException;
+
+import org.greatfree.exceptions.RemoteReadException;
+
 final class StartClient {
 	
-	public static void main(String[] args) {
+	public static void main(String[] args) throws ClassNotFoundException, RemoteReadException, IOException {
 	
 		
-        RingEventer.RE();
+        RingEventer.RE().init();
+        RingUI.R().init();
         
-	
+	    RingUI.R().printMenu();
 	}
 	
-	int option = -1;
-}
+
+	
+}	
+	
