@@ -25,7 +25,7 @@ final class StartClient {
 		
 		while(option != 1) {
 			RingUI.R().execute();
-			System.out.println("Leader election started?");
+			System.out.println("Leader election started");
 		}
 	    
 	}
