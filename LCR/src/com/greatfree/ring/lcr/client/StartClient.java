@@ -23,7 +23,7 @@ final class StartClient {
 		optionStr = Tools.INPUT.nextLine();
 		option = Integer.parseInt(optionStr);
 		
-		while(option != 1) {
+		while(option == 1) {
 			RingUI.R().execute();
 			System.out.println("Leader election started");
 		}
