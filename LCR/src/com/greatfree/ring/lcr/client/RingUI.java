@@ -3,6 +3,7 @@ package com.greatfree.ring.lcr.client;
 import java.io.IOException;
 
 import org.greatfree.exceptions.RemoteReadException;
+import org.greatfree.util.IPAddress;
 
 import com.greatfree.ring.lcr.message.SendNotification;
 
@@ -11,14 +12,9 @@ import edu.greatfree.framework.cluster.multicast.client.ClusterClient;
 
 final class RingUI {
 	
-	private String ip;
-	private int port;
+	private IPAddress rootAddress;
+	private static RingUI instance = new RingUI();
 	
-	
-    private RingUI() {
-    	
-    }
-	private static RingUI instance = new RingUI(); 
 	
 	public static RingUI R()
 	{
@@ -35,33 +31,18 @@ final class RingUI {
 	}
 	
 	public void init() throws ClassNotFoundException, RemoteReadException, IOException {
-		this.setIp("192.168.1.25");
-		this.setPort(8001);
+		this.rootAddress = ClusterClient.MULTI().getAddress("192.168.1.25", 8001, "Root");
 	}
 	
+	public IPAddress getRootAddress() { return this.rootAddress; }
 	
 	public void printMenu() {
 		System.out.println("Enter '1' to start leader Election.");
 	}
 	
 	public void execute() throws IOException, InterruptedException {
-		ClusterClient.MULTI().syncNotify(this.ip, this.port, new SendNotification());
+		ClusterClient.MULTI().syncNotify(this.rootAddress.getIP(), this.rootAddress.getPort(), new SendNotification());
 		
 	}
 
-	public String getIp() {
-		return ip;
-	}
-
-	public void setIp(String ip) {
-		this.ip = ip;
-	}
-
-	public int getPort() {
-		return port;
-	}
-
-	public void setPort(int port) {
-		this.port = port;
-	}
 }

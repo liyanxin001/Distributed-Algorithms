@@ -16,6 +16,9 @@ public class SendNotification extends ServerMessage{
 
 	public SendNotification() {
 		super(LCRAppID.SEND_NOTIFICATION);
+		this.leaderUID = null;
+		this.leaderAddress = null;
+		this.leftNodeIPs = null;
         this.isFirstSent = true;
 	}
 
